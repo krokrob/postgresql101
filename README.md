@@ -22,9 +22,9 @@ git commit -m 'kickstart PostgreSQL project'
 ```bash
 heroku create --region eu
 ```
-4. Add a PostgreSQL database to the Heroku app
+4. Add a **free** PostgreSQL database to the Heroku app - [Plans & Pricing](https://elements.heroku.com/addons/heroku-postgresql#pricing)
 ```bash
-heroku addons:create heroku-postgresql:standard-0
+heroku addons:downgrade heroku-postgresql:hobby-dev
 ```
 **Wait for 3-5 min** then execute the following command (try again until you get the expected output):
 ```bash
