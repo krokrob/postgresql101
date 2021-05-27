@@ -95,15 +95,15 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
 ```
 
-### Create your first table `films`
+### Create your first table `movies`
 
 Create a new cell then:
 ```python
-films_df = pd.DataFrame([
+movies_df = pd.DataFrame([
   {"movie_id":1, "title": "The Dark Knight", "rating": 4},
   {"movie_id":2,"title": "The Dark Knight Rises", "rating": 5}
 ])
-films_df.to_sql("movies", engine, if_exists='replace', index=False)
+movies_df.to_sql("movies", engine, if_exists='replace', index=False)
 ```
 
 ### Query your DB
