@@ -22,29 +22,63 @@ git commit -m 'kickstart PostgreSQL project'
 ```bash
 heroku create --region eu
 ```
-4. Add a **free** PostgreSQL database to the Heroku app - [Plans & Pricing](https://elements.heroku.com/addons/heroku-postgresql#pricing)
+4. Add a PostgreSQL database to the Heroku app matching your needs (choose one), this can take a while (3-5min)
 ```bash
-heroku addons:downgrade heroku-postgresql:hobby-dev
+# Free - 10k rows
+heroku addons:wait heroku-postgresql:hobby-dev
+# 9$/momth - 10M rows
+heroku addons:wait heroku-postgresql:hobby-basic
+# 50$/month - 64Go no row limit
+heroku addons:wait heroku-postgresql:standard-0
 ```
-**Wait for 3-5 min** then execute the following command (try again until you get the expected output):
+ℹ️ [Plans & Pricing](https://elements.heroku.com/addons/heroku-postgresql#pricing)
+
+5. Get your `DATABASE_URL`
 ```bash
-heroku config
+heroku config:get DATABASE_URL
 ```
-returning the `DATABASE_URL`:
+which looks like:
 ```bash
-DATABASE_URL: postgres://******************:*********************@**********.eu-west-1.compute.amazonaws.com:5432/***********
+postgres://******************:*********************@**********.eu-west-1.compute.amazonaws.com:5432/***********
 ```
-Keep this URL for the next steps.
+6. That URL is **a secret**, keep it safe!
+
+Create a safe place for your secret:
+```bash
+touch .env #
+```
+Copy the `DATABASE_URL` in the `.env` file:
+```txt
+DATABASE_URL="YOUR_DATABASE_URL"
+```
+Keep the `.env` file away from `git`:
+```bash
+touch .gitignore
+echo ".env" >> .gitignore
+```
+7. Save your setup
+```bash
+git status # .env should be ignored
+git add .
+git commit -m 'setup the postgresql database'
+```
 
 🚀 Congrats! Your PostgreSQL production database is ready!
 
-### The `psycopg2` library
+### Minimal requirements
 
-You need a specific connector to communicate with the PostgreSQL database:
+Install the minimal requirement packages with:
 
 ```bash
-pip install psycopg2-binary
+pip install -r requirements.txt
 ```
+
+Installed packages:
+
+- [psycopg](https://www.psycopg.org/) a specific connector for PostgreSQL database
+- [SQLAlchemy](https://www.sqlalchemy.org/) a Pytrhon SQL object relational mapper
+- [python-dotenv](https://github.com/theskumar/python-dotenv) a secret manager
+- The good old pandas
 
 ## Build your database
 
@@ -54,62 +88,42 @@ Open a Jupyter notebook then:
 
 ```python
 import os
-import psycopg2
+from sqlalchemy import create_engine
 
 
-DATABASE_URL = "replace_this_with_your_DATABASE_URL"
-
-conn = psycopg2.connect(DATABASE_URL, sslmode='require') # Instantiate a connector with the production DB
+DATABASE_URL = os.getenv("DATABASE_URL")
+engine = create_engine(DATABASE_URL)
 ```
 
 ### Create your first table `films`
 
 Create a new cell then:
 ```python
-c = conn.cursor() # Instantiate a cursor to execute queries
-
-create_films = '''
-CREATE TABLE films (
-    id        char(5) CONSTRAINT firstkey PRIMARY KEY ,
-    title       varchar(40) NOT NULL,
-    rating        integer NOT NULL
-);
-'''
-
-c.execute(create_films) # Execute the query
-c.close() # Close cursor ⚠️
-conn.commit() # Commit table creation ⚠️
-```
-
-### Seed the table `films`
-
-Create a new cell then:
-```python
-c = conn.cursor()
-seed_film = '''
-INSERT INTO films (id,title, rating)
-VALUES(1,'The Matrix', 5);
-'''
-c.execute(seed_film)
-c.close()
-conn.commit()
+films_df = pd.DataFrame([
+  {"movie_id":1, "title": "The Dark Knight", "rating": 4},
+  {"movie_id":2,"title": "The Dark Knight Rises", "rating": 5}
+])
+films_df.to_sql("movies", engine, if_exists='replace', index=False)
 ```
 
 ### Query your DB
 
 Create a new cell then:
+
 ```python
+# The SQLAlchemy way
+pd.read_sql("movies", engine).head()
+```
+
+You can also query your DB the good old Python way with `psycopg2`:
+```python
+conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 c = conn.cursor()
 fetch_films = '''
 SELECT * FROM films;
 '''
 c.execute(fetch_films)
 c.fetchall()
-```
-
-This should output:
-```python
-[('1    ', 'The Matrix', 5)]
 ```
 
 ## 🚀 Your turn!
