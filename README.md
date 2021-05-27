@@ -43,9 +43,9 @@ postgres://******************:*********************@**********.eu-west-1.compute
 ```
 6. That URL is **a secret**, keep it safe!
 
-Create a safe place for your secret:
+Create a safe place for your secrets:
 ```bash
-touch .env #
+touch .env
 ```
 Copy the `DATABASE_URL` in the `.env` file:
 ```txt
