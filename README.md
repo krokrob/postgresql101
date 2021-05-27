@@ -25,15 +25,18 @@ heroku create --region eu
 4. Add a PostgreSQL database to the Heroku app matching your needs (choose one), this can take a while (3-5min)
 ```bash
 # Free - 10k rows
-heroku addons:wait heroku-postgresql:hobby-dev
+heroku addons:create heroku-postgresql:hobby-dev
 # 9$/momth - 10M rows
-heroku addons:wait heroku-postgresql:hobby-basic
+heroku addons:create heroku-postgresql:hobby-basic
 # 50$/month - 64Go no row limit
-heroku addons:wait heroku-postgresql:standard-0
+heroku addons:create heroku-postgresql:standard-0
 ```
 ℹ️ [Plans & Pricing](https://elements.heroku.com/addons/heroku-postgresql#pricing)
-
-5. Get your `DATABASE_URL`
+5. Wait for your database to be created
+```bash
+heroku addons:wait heroku-postgresql
+```
+6. Get your `DATABASE_URL`
 ```bash
 heroku config:get DATABASE_URL
 ```
@@ -41,7 +44,7 @@ which looks like:
 ```bash
 postgres://******************:*********************@**********.eu-west-1.compute.amazonaws.com:5432/***********
 ```
-6. That URL is **a secret**, keep it safe!
+7. That URL is **a secret**, keep it safe!
 
 Create a safe place for your secrets:
 ```bash
@@ -56,7 +59,7 @@ Keep the `.env` file away from `git`:
 touch .gitignore
 echo ".env" >> .gitignore
 ```
-7. Save your setup
+8. Save your setup
 ```bash
 git status # .env should be ignored
 git add .
