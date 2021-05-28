@@ -109,6 +109,8 @@ movies_df = pd.DataFrame([
 movies_df.to_sql("movies", engine, if_exists='replace', index=False)
 ```
 
+ℹ️ [`pandas.DataFrame.to_sql` documentation](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_sql.html)
+
 ### Query your DB
 
 Create a new cell then:
